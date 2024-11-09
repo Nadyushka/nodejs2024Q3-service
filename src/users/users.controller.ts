@@ -8,6 +8,7 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 
 import { UserModelWithoutPassword } from '../model/user.model';
@@ -15,12 +16,14 @@ import { ResponseModel } from '../model/response.model';
 import { CreateUserDto, UpdatePasswordDto } from './users.dto';
 import { UsersService } from './users.service';
 import { errorHandler } from '../utils/errorHandler';
+import { ErrorModel } from '../model/error.model';
 
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @HttpCode(200)
   async getAllUsers() {
     try {
       const users = await this.usersService.getAllUsers();
@@ -37,6 +40,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @HttpCode(200)
   async getUserById(@Param('id') id: string) {
     try {
       const res = await this.usersService.getUserById(id);
@@ -58,6 +62,7 @@ export class UsersController {
   }
 
   @Post()
+  @HttpCode(201)
   async createUser(@Body() createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
 
@@ -88,6 +93,7 @@ export class UsersController {
   }
 
   @Put(':id')
+  @HttpCode(200)
   async updateUserPassword(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
@@ -107,7 +113,7 @@ export class UsersController {
         id,
       });
 
-      if (typeof res != 'boolean') {
+      if (res instanceof ErrorModel) {
         throw new HttpException(res.errorText, res.status);
       }
 
@@ -120,18 +126,13 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deleteUser(@Param('id') id: string) {
     try {
       const res = await this.usersService.deleteUser(id);
 
-      if (typeof res != 'boolean') {
+      if (res instanceof ErrorModel) {
         throw new HttpException(res.errorText, res.status);
-      }
-
-      if (res) {
-        return new ResponseModel({
-          statusCode: HttpStatus.NO_CONTENT,
-        });
       }
     } catch (e) {
       errorHandler(e);

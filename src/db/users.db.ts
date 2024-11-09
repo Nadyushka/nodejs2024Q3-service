@@ -62,6 +62,8 @@ export class UsersDb {
       }
       return user;
     });
+
+    return this.users.find((user) => user.id === id);
   }
 
   deleteUser(id: string) {

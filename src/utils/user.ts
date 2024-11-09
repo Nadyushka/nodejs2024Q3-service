@@ -3,8 +3,7 @@ import { UserModel, UserModelWithoutPassword } from '../model/user.model';
 export const deletePasswordInfo = (
   usersData: UserModel[] | UserModel | null,
 ): null | UserModelWithoutPassword | UserModelWithoutPassword[] => {
-  if (!usersData )
-    return null;
+  if (!usersData) return null;
 
   if (Array.isArray(usersData)) {
     return [...usersData].map((user) => {
@@ -16,7 +15,7 @@ export const deletePasswordInfo = (
 
   const userCopy = { ...usersData };
 
-  if ( userCopy.password ) {
+  if (userCopy.password) {
     delete userCopy.password;
     return userCopy;
   }

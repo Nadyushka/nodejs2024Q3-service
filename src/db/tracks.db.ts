@@ -56,6 +56,8 @@ export class TracksDb {
 
       return track;
     });
+
+    return this.tracks.find((track) => track.id === id);
   }
 
   deleteTrack(id: string) {

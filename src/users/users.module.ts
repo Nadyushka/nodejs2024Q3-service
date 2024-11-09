@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UuidMiddleware } from '../middleware/uuid.middleware';
@@ -16,6 +21,6 @@ export class UsersModule implements NestModule {
         { path: 'user/:id', method: RequestMethod.GET },
         { path: 'user/:id', method: RequestMethod.DELETE },
         { path: 'user/:id', method: RequestMethod.PUT },
-      )
+      );
   }
 }

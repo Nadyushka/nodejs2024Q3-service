@@ -4,6 +4,7 @@ import { deletePasswordInfo } from '../utils/user';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto, UpdatePasswordDto } from './users.dto';
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { ErrorModel } from '../model/error.model';
 
 const usersDb = UsersDb.getInstance();
 
@@ -61,23 +62,21 @@ export class UsersService {
     newPassword,
     oldPassword,
     id,
-  }: UpdatePasswordDto & { id: string }): Promise<
-    boolean | { errorText: string; status: HttpStatus }
-  > {
+  }: UpdatePasswordDto & { id: string }): Promise<boolean | ErrorModel> {
     const userToUpdatePassword = usersDb.checkIfUserExist(id);
 
     if (!userToUpdatePassword) {
-      return {
+      return new ErrorModel({
         errorText: 'There is no user with such id',
         status: HttpStatus.NOT_FOUND,
-      };
+      });
     }
 
     if (userToUpdatePassword.password !== oldPassword) {
-      return {
+      return new ErrorModel({
         errorText: 'Incorrect old password',
         status: HttpStatus.FORBIDDEN,
-      };
+      });
     }
 
     try {
@@ -89,17 +88,15 @@ export class UsersService {
     }
   }
 
-  async deleteUser(
-    id: string,
-  ): Promise<boolean | { errorText: string; status: HttpStatus }> {
+  async deleteUser(id: string): Promise<boolean | ErrorModel> {
     try {
       const isUserExist = usersDb.checkIfUserExist(id);
 
       if (!isUserExist) {
-        return {
+        return new ErrorModel({
           errorText: 'There is no user with such id',
           status: HttpStatus.BAD_REQUEST,
-        };
+        });
       }
 
       return await usersDb.deleteUser(id);

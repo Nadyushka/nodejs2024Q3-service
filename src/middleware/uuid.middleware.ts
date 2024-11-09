@@ -13,10 +13,7 @@ export class UuidMiddleware implements NestMiddleware {
     const id = req.params?.id;
 
     if (id && !isUUID(id)) {
-      throw new HttpException(
-        'Invalid ID format.',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Invalid ID format.', HttpStatus.BAD_REQUEST);
     }
 
     next();

@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { TracksDb } from '../db/tracks.db';
 import { TrackModel } from '../model/track.model';
 import { CreateTrackDto, UpdateTrackDto } from './tracks.dto';
+import { ErrorModel } from '../model/error.model';
 
 const tracksDb = TracksDb.getInstance();
 
@@ -53,37 +54,37 @@ export class TracksService {
     albumId,
     artistId,
     id,
-  }: UpdateTrackDto & { id: string }): Promise<
-    boolean | { errorText: string; status: HttpStatus }
-  > {
+  }: UpdateTrackDto & { id: string }): Promise<TrackModel | ErrorModel> {
     const trackToUpdate = tracksDb.checkIfTrackExist(id);
 
     if (!trackToUpdate) {
-      return {
+      return new ErrorModel({
         errorText: 'There is no track with such id',
         status: HttpStatus.NOT_FOUND,
-      };
+      });
     }
 
     try {
-      await tracksDb.updateTrackInfo(id, { name, duration, albumId, artistId });
-      return true;
+      return await tracksDb.updateTrackInfo(id, {
+        name,
+        duration,
+        albumId,
+        artistId,
+      });
     } catch (e) {
       console.error('updateTrack', e);
     }
   }
 
-  async deleteTrack(
-    id: string,
-  ): Promise<boolean | { errorText: string; status: HttpStatus }> {
+  async deleteTrack(id: string): Promise<boolean | ErrorModel> {
     try {
-      const trackToUpdateDelete = tracksDb.checkIfTrackExist(id);
+      const trackToDelete = tracksDb.checkIfTrackExist(id);
 
-      if (!trackToUpdateDelete) {
-        return {
+      if (!trackToDelete) {
+        return new ErrorModel({
           errorText: 'There is no track with such id',
           status: HttpStatus.BAD_REQUEST,
-        };
+        });
       }
 
       return await tracksDb.deleteTrack(id);
