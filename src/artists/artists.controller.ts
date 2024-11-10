@@ -26,11 +26,7 @@ export class ArtistsController {
   @HttpCode(200)
   async getAllArtists() {
     try {
-      const artists = await this.artistsService.getAllArtists();
-      return new ResponseModel<ArtistModel[]>({
-        statusCode: HttpStatus.OK,
-        data: artists,
-      });
+      return await this.artistsService.getAllArtists();
     } catch (e) {
       throw new HttpException(
         'Internal Server Error',
@@ -52,10 +48,7 @@ export class ArtistsController {
         );
       }
 
-      return new ResponseModel<ArtistModel | null>({
-        statusCode: HttpStatus.OK,
-        data: res,
-      });
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -87,10 +80,7 @@ export class ArtistsController {
         throw new HttpException(res, HttpStatus.BAD_REQUEST);
       }
 
-      return new ResponseModel({
-        statusCode: HttpStatus.CREATED,
-        data: res,
-      });
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -104,6 +94,13 @@ export class ArtistsController {
   ) {
     try {
       const { name, grammy } = updateArtistDto;
+
+      if (!name || !`${grammy}`) {
+        throw new HttpException(
+          'Name and grammy are required.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
       if (
         (name && typeof name != 'string') ||
@@ -125,10 +122,7 @@ export class ArtistsController {
         throw new HttpException(res.errorText, res.status);
       }
 
-      return new ResponseModel({
-        statusCode: HttpStatus.OK,
-        data: res,
-      });
+      return res;
     } catch (e) {
       errorHandler(e);
     }

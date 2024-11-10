@@ -10,22 +10,7 @@ export class TracksDb {
     return TracksDb.instance;
   }
 
-  tracks: TrackModel[] = [
-    new TrackModel({
-      id: '123e4567-e89b-12d3-a456-426614174010',
-      name: 'Nebesa',
-      artistId: '113e4567-e89b-12d3-a456-426614174010',
-      albumId: '223e4567-e89b-12d3-a456-426614174010',
-      duration: 180,
-    }),
-    new TrackModel({
-      id: '123e4567-e89b-12d3-a456-426614174011',
-      name: 'Seyra',
-      artistId: '113e4567-e89b-12d3-a456-426614174011',
-      albumId: '223e4567-e89b-12d3-a456-426614174011',
-      duration: 160,
-    }),
-  ];
+  tracks: TrackModel[] = [];
 
   getTracks() {
     return this.tracks;
@@ -45,13 +30,17 @@ export class TracksDb {
   }
 
   updateTrackInfo(id: string, updatedTrackData: Partial<TrackModel>) {
+    let updatedTrack = updatedTrackData;
+
     this.tracks = this.tracks.map((track) => {
       const updatedTrackInfo = new TrackModel(updatedTrackData);
       if (track.id === id) {
-        return {
+        updatedTrack = {
           ...track,
           ...updatedTrackInfo,
         };
+
+        return updatedTrack as TrackModel;
       }
 
       return track;
@@ -63,5 +52,31 @@ export class TracksDb {
   deleteTrack(id: string) {
     this.tracks = this.tracks.filter((track) => track.id !== id);
     return true;
+  }
+
+  deleteArtistFromTracks(artistId: string) {
+    this.tracks = this.tracks.map((track) => {
+      if (track.artistId == artistId) {
+        return {
+          ...track,
+          artistId: null,
+        };
+      } else {
+        return track;
+      }
+    });
+  }
+
+  deleteAlbumFromTracks(albumId: string) {
+    this.tracks = this.tracks.map((track) => {
+      if (track.albumId == albumId) {
+        return {
+          ...track,
+          albumId: null,
+        };
+      } else {
+        return track;
+      }
+    });
   }
 }

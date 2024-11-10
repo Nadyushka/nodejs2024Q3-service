@@ -15,4 +15,7 @@ export class UpdateArtistDto {
 
   @IsBoolean()
   grammy: boolean;
+
+  @IsString()
+  id: string;
 }

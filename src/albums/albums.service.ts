@@ -4,15 +4,16 @@ import { ErrorModel } from '../model/error.model';
 import { AlbumsDb } from '../db/albums.db';
 import { AlbumModel } from '../model/albums.model';
 import { CreateAlbumDto, UpdateAlbumDto } from './albums.dto';
+import { TracksDb } from '../db/tracks.db';
 
 const albumsDb = AlbumsDb.getInstance();
+const tracksDb = TracksDb.getInstance();
 
 @Injectable()
 export class AlbumsService {
-  async getAllAlbums(): Promise<AlbumModel[] | null> {
+  async getAllAlbums(): Promise<AlbumModel[] > {
     try {
-      const albums = await albumsDb.getAlbums();
-      return albums?.length ? albums : null;
+      return await albumsDb.getAlbums();
     } catch (error) {
       console.error('getAllAlbums', error);
     }
@@ -20,8 +21,7 @@ export class AlbumsService {
 
   async getAlbumById(id: string): Promise<AlbumModel | null> {
     try {
-      const album = await albumsDb.getAlbumById(id);
-      return album ?? null;
+      return await albumsDb.getAlbumById(id);
     } catch (error) {
       console.error('getAlbumById', error);
     }
@@ -75,11 +75,13 @@ export class AlbumsService {
       if (!albumToDelete) {
         return new ErrorModel({
           errorText: 'There is no album with such id',
-          status: HttpStatus.BAD_REQUEST,
+          status: HttpStatus.NOT_FOUND,
         });
       }
 
-      return await albumsDb.deleteAlbum(id);
+      await albumsDb.deleteAlbum(id);
+      await tracksDb.deleteAlbumFromTracks(id);
+      return true;
     } catch (e) {
       console.error('deleteAlbum', e);
     }

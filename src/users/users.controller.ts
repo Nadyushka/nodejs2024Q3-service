@@ -26,11 +26,7 @@ export class UsersController {
   @HttpCode(200)
   async getAllUsers() {
     try {
-      const users = await this.usersService.getAllUsers();
-      return new ResponseModel<UserModelWithoutPassword[]>({
-        statusCode: HttpStatus.OK,
-        data: users,
-      });
+      return await this.usersService.getAllUsers();
     } catch (e) {
       throw new HttpException(
         'Internal Server Error',
@@ -52,10 +48,7 @@ export class UsersController {
         );
       }
 
-      return new ResponseModel<UserModelWithoutPassword | null>({
-        statusCode: HttpStatus.OK,
-        data: res,
-      });
+      return res
     } catch (e) {
       errorHandler(e);
     }
@@ -83,10 +76,7 @@ export class UsersController {
         throw new HttpException(res, HttpStatus.BAD_REQUEST);
       }
 
-      return new ResponseModel({
-        statusCode: HttpStatus.CREATED,
-        data: res,
-      });
+      return res
     } catch (e) {
       errorHandler(e);
     }
@@ -117,9 +107,7 @@ export class UsersController {
         throw new HttpException(res.errorText, res.status);
       }
 
-      return new ResponseModel({
-        statusCode: HttpStatus.OK,
-      });
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -134,6 +122,7 @@ export class UsersController {
       if (res instanceof ErrorModel) {
         throw new HttpException(res.errorText, res.status);
       }
+
     } catch (e) {
       errorHandler(e);
     }

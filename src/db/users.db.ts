@@ -10,24 +10,7 @@ export class UsersDb {
     return UsersDb.instance;
   }
 
-  users: UserModel[] = [
-    new UserModel({
-      id: '123e4567-e89b-12d3-a456-426614174000',
-      login: 'user1',
-      password: 'user1',
-      version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    }),
-    new UserModel({
-      id: '123e4567-e89b-12d3-a456-426614174001',
-      login: 'user2',
-      password: 'user2',
-      version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    }),
-  ];
+  users: UserModel[] = [];
 
   getUsers() {
     return this.users;
@@ -51,19 +34,22 @@ export class UsersDb {
   }
 
   updateUserPassword(id: string, newPassword: string) {
+    let updatedUser;
     this.users = this.users.map((user) => {
       if (user.id === id) {
-        return {
+        updatedUser = {
           ...user,
           password: newPassword,
           updatedAt: Date.now(),
           version: user.version + 1,
         };
+
+        return updatedUser as UserModel;
       }
       return user;
     });
 
-    return this.users.find((user) => user.id === id);
+    return updatedUser;
   }
 
   deleteUser(id: string) {

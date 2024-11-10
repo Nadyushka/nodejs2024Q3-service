@@ -11,8 +11,7 @@ const tracksDb = TracksDb.getInstance();
 export class TracksService {
   async getAllTracks(): Promise<TrackModel[] | null> {
     try {
-      const tracks = await tracksDb.getTracks();
-      return tracks?.length ? tracks : null;
+      return await tracksDb.getTracks();
     } catch (error) {
       console.error('getAllTracks', error);
     }
@@ -83,7 +82,7 @@ export class TracksService {
       if (!trackToDelete) {
         return new ErrorModel({
           errorText: 'There is no track with such id',
-          status: HttpStatus.BAD_REQUEST,
+          status: HttpStatus.NOT_FOUND,
         });
       }
 

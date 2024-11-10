@@ -15,7 +15,7 @@ export class UsersService {
       const users = await usersDb.getUsers();
       return users?.length
         ? (deletePasswordInfo(users) as UserModelWithoutPassword[])
-        : null;
+        : [];
     } catch (error) {
       console.error('getAllUsers', error);
     }
@@ -23,10 +23,8 @@ export class UsersService {
 
   async getUserById(id: string): Promise<UserModelWithoutPassword | null> {
     try {
-      const user = usersDb.getUserById(id);
-      return user
-        ? (deletePasswordInfo(user) as UserModelWithoutPassword)
-        : null;
+      const res = usersDb.getUserById(id);
+      return res ? (deletePasswordInfo(res) as UserModelWithoutPassword) : null;
     } catch (error) {
       console.error('getUserById', error);
     }
@@ -62,7 +60,9 @@ export class UsersService {
     newPassword,
     oldPassword,
     id,
-  }: UpdatePasswordDto & { id: string }): Promise<boolean | ErrorModel> {
+  }: UpdatePasswordDto & { id: string }): Promise<
+    UserModelWithoutPassword | ErrorModel
+  > {
     const userToUpdatePassword = usersDb.checkIfUserExist(id);
 
     if (!userToUpdatePassword) {
@@ -80,9 +80,8 @@ export class UsersService {
     }
 
     try {
-      usersDb.updateUserPassword(id, newPassword);
-
-      return true;
+      const res = await usersDb.updateUserPassword(id, newPassword);
+      return deletePasswordInfo(res) as UserModelWithoutPassword;
     } catch (e) {
       console.error('updatePassword', e);
     }
@@ -95,7 +94,7 @@ export class UsersService {
       if (!isUserExist) {
         return new ErrorModel({
           errorText: 'There is no user with such id',
-          status: HttpStatus.BAD_REQUEST,
+          status: HttpStatus.NOT_FOUND,
         });
       }
 

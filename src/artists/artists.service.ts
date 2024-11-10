@@ -4,15 +4,18 @@ import { ArtistsDb } from '../db/artists.db';
 import { ArtistModel } from '../model/artist.model';
 import { CreateArtisDto, UpdateArtistDto } from './artists.dto';
 import { ErrorModel } from '../model/error.model';
+import { TracksDb } from '../db/tracks.db';
+import { AlbumsDb } from '../db/albums.db';
 
 const artistDb = ArtistsDb.getInstance();
+const tracksDb = TracksDb.getInstance();
+const albumsDb = AlbumsDb.getInstance();
 
 @Injectable()
 export class ArtistsService {
   async getAllArtists(): Promise<ArtistModel[] | null> {
     try {
-      const res = await artistDb.getArtists();
-      return res?.length ? res : null;
+      return await artistDb.getArtists();
     } catch (error) {
       console.error('getAllArtists', error);
     }
@@ -49,7 +52,7 @@ export class ArtistsService {
     grammy,
     id,
   }: UpdateArtistDto & { id: string }): Promise<ArtistModel | ErrorModel> {
-    const artistToUpdate = artistDb.checkIfArtistExist(id, name);
+    const artistToUpdate = artistDb.checkIfArtistExist(id);
 
     if (!artistToUpdate) {
       return new ErrorModel({
@@ -67,16 +70,19 @@ export class ArtistsService {
 
   async deleteArtist(id: string): Promise<boolean | ErrorModel> {
     try {
-      const artistToDelete = artistDb.checkIfArtistExist(id, '');
+      const artistToDelete = artistDb.checkIfArtistExist(id);
 
       if (!artistToDelete) {
         return new ErrorModel({
           errorText: 'There is no artist with such id',
-          status: HttpStatus.BAD_REQUEST,
+          status: HttpStatus.NOT_FOUND,
         });
       }
 
-      return await artistDb.deleteArtist(id);
+      await artistDb.deleteArtist(id);
+      await tracksDb.deleteArtistFromTracks(id);
+      await albumsDb.deleteArtistFromAlbums(id);
+      return;
     } catch (e) {
       console.error('deleteArtist', e);
     }

@@ -10,20 +10,7 @@ export class AlbumsDb {
     return AlbumsDb.instance;
   }
 
-  albums: AlbumModel[] = [
-    new AlbumModel({
-      id: '200e4567-e89b-12d3-a456-426614174011',
-      name: 'Any',
-      year: 2012,
-      artistId: '133e4567-e89b-12d3-a456-426614174010',
-    }),
-    new AlbumModel({
-      id: '200e4567-e89b-12d3-a456-426614174010',
-      name: 'Solntse',
-      year: 2007,
-      artistId: '133e4567-e89b-12d3-a456-426614174010',
-    }),
-  ];
+  albums: AlbumModel[] = [];
 
   getAlbums() {
     return this.albums;
@@ -43,23 +30,39 @@ export class AlbumsDb {
   }
 
   updateAlbumsInfo(id: string, updatedAlbumData: Partial<AlbumModel>) {
+    let updatedAlbum = null;
     this.albums = this.albums.map((album) => {
       const updatedAlbumInfo = new AlbumModel(updatedAlbumData);
       if (album.id === id) {
-        return {
+        updatedAlbum = {
           ...album,
           ...updatedAlbumInfo,
         };
+
+        return updatedAlbum as AlbumModel;
       }
 
       return album;
     });
 
-    return this.albums.find((album) => album.id === id);
+    return updatedAlbum;
   }
 
   deleteAlbum(id: string) {
     this.albums = this.albums.filter((album) => album.id !== id);
     return true;
+  }
+
+  deleteArtistFromAlbums(artistId: string) {
+    this.albums = this.albums.map((album) => {
+      if (album.artistId == artistId) {
+        return {
+          ...album,
+          artistId: null,
+        };
+      } else {
+        return album;
+      }
+    });
   }
 }

@@ -10,18 +10,7 @@ export class ArtistsDb {
     return ArtistsDb.instance;
   }
 
-  artists: ArtistModel[] = [
-    new ArtistModel({
-      id: '133e4567-e89b-12d3-a456-426614174010',
-      name: 'Meladze',
-      grammy: false,
-    }),
-    new ArtistModel({
-      id: '144e4567-e89b-12d3-a456-426614174011',
-      name: 'Eminem',
-      grammy: true,
-    }),
-  ];
+  artists: ArtistModel[] = [];
 
   getArtists() {
     return this.artists;
@@ -36,27 +25,29 @@ export class ArtistsDb {
     return newArtist;
   }
 
-  checkIfArtistExist(id: string, name: string) {
+  checkIfArtistExist(id: string) {
     return (
-      this.artists.find((artist) => artist.id === id) ||
-      this.artists.find((artist) => artist.name === name)
+      this.artists.find((artist) => artist.id === id)
     );
   }
 
   updateArtistInfo(id: string, updatedArtistData: Partial<ArtistModel>) {
+    let updatedArtist = updatedArtistData;
     this.artists = this.artists.map((artist) => {
       const updatedArtistInfo = new ArtistModel(updatedArtistData);
       if (artist.id === id) {
-        return {
+        updatedArtist = {
           ...artist,
           ...updatedArtistInfo,
         };
+
+        return updatedArtist as ArtistModel;
       }
 
       return artist;
     });
 
-    return this.artists.find((artist) => artist.id === id);
+    return updatedArtist as ArtistModel;
   }
 
   deleteArtist(id: string) {

@@ -11,12 +11,10 @@ import {
   HttpCode,
 } from '@nestjs/common';
 
-import { ResponseModel } from '../model/response.model';
 import { errorHandler } from '../utils/errorHandler';
 import { isUUID } from 'class-validator';
 import { ErrorModel } from '../model/error.model';
 import { AlbumsService } from './albums.service';
-import { AlbumModel } from '../model/albums.model';
 import { CreateAlbumDto, UpdateAlbumDto } from './albums.dto';
 
 @Controller('album')
@@ -27,11 +25,7 @@ export class AlbumsController {
   @HttpCode(200)
   async getAllAlbums() {
     try {
-      const res = await this.albumsService.getAllAlbums();
-      return new ResponseModel<AlbumModel[]>({
-        statusCode: HttpStatus.OK,
-        data: res,
-      });
+      return await this.albumsService.getAllAlbums();
     } catch (e) {
       throw new HttpException(
         'Internal Server Error',
@@ -53,10 +47,7 @@ export class AlbumsController {
         );
       }
 
-      return new ResponseModel<AlbumModel | null>({
-        statusCode: HttpStatus.OK,
-        data: res,
-      });
+      return res
     } catch (e) {
       errorHandler(e);
     }
@@ -95,10 +86,7 @@ export class AlbumsController {
         throw new HttpException(res, HttpStatus.BAD_REQUEST);
       }
 
-      return new ResponseModel({
-        statusCode: HttpStatus.CREATED,
-        data: res,
-      });
+      return res
     } catch (e) {
       errorHandler(e);
     }
@@ -139,10 +127,7 @@ export class AlbumsController {
         throw new HttpException(res.errorText, res.status);
       }
 
-      return new ResponseModel({
-        statusCode: HttpStatus.OK,
-        data: res,
-      });
+      return res
     } catch (e) {
       errorHandler(e);
     }

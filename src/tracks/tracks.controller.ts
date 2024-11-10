@@ -27,11 +27,7 @@ export class TracksController {
   @HttpCode(200)
   async getAllTracks() {
     try {
-      const tracks = await this.tracksService.getAllTracks();
-      return new ResponseModel<TrackModel[]>({
-        statusCode: HttpStatus.OK,
-        data: tracks,
-      });
+      return await this.tracksService.getAllTracks();
     } catch (e) {
       throw new HttpException(
         'Internal Server Error',
@@ -53,10 +49,7 @@ export class TracksController {
         );
       }
 
-      return new ResponseModel<TrackModel | null>({
-        statusCode: HttpStatus.OK,
-        data: res,
-      });
+      return res
     } catch (e) {
       errorHandler(e);
     }
@@ -95,10 +88,7 @@ export class TracksController {
         throw new HttpException(res, HttpStatus.BAD_REQUEST);
       }
 
-      return new ResponseModel({
-        statusCode: HttpStatus.CREATED,
-        data: res,
-      });
+      return res
     } catch (e) {
       errorHandler(e);
     }
@@ -139,10 +129,7 @@ export class TracksController {
         throw new HttpException(res.errorText, res.status);
       }
 
-      return new ResponseModel({
-        statusCode: HttpStatus.OK,
-        data: res,
-      });
+      return res
     } catch (e) {
       errorHandler(e);
     }
