@@ -26,9 +26,7 @@ export class ArtistsDb {
   }
 
   checkIfArtistExist(id: string) {
-    return (
-      this.artists.find((artist) => artist.id === id)
-    );
+    return this.artists.find((artist) => artist.id === id);
   }
 
   updateArtistInfo(id: string, updatedArtistData: Partial<ArtistModel>) {

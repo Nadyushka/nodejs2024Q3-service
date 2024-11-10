@@ -11,8 +11,6 @@ import {
   HttpCode,
 } from '@nestjs/common';
 
-import { UserModelWithoutPassword } from '../model/user.model';
-import { ResponseModel } from '../model/response.model';
 import { CreateUserDto, UpdatePasswordDto } from './users.dto';
 import { UsersService } from './users.service';
 import { errorHandler } from '../utils/errorHandler';
@@ -48,7 +46,7 @@ export class UsersController {
         );
       }
 
-      return res
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -76,7 +74,7 @@ export class UsersController {
         throw new HttpException(res, HttpStatus.BAD_REQUEST);
       }
 
-      return res
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -122,7 +120,6 @@ export class UsersController {
       if (res instanceof ErrorModel) {
         throw new HttpException(res.errorText, res.status);
       }
-
     } catch (e) {
       errorHandler(e);
     }
