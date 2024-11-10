@@ -11,7 +11,7 @@ const tracksDb = TracksDb.getInstance();
 
 @Injectable()
 export class AlbumsService {
-  async getAllAlbums(): Promise<AlbumModel[] > {
+  async getAllAlbums(): Promise<AlbumModel[]> {
     try {
       return await albumsDb.getAlbums();
     } catch (error) {

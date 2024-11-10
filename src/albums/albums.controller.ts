@@ -47,7 +47,7 @@ export class AlbumsController {
         );
       }
 
-      return res
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -86,7 +86,7 @@ export class AlbumsController {
         throw new HttpException(res, HttpStatus.BAD_REQUEST);
       }
 
-      return res
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -127,7 +127,7 @@ export class AlbumsController {
         throw new HttpException(res.errorText, res.status);
       }
 
-      return res
+      return res;
     } catch (e) {
       errorHandler(e);
     }
