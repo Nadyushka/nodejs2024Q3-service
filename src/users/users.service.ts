@@ -1,18 +1,17 @@
-import { UsersDb } from '../db/users.db';
 import { UserModel, UserModelWithoutPassword } from '../model/user.model';
 import { deletePasswordInfo } from '../utils/user';
-import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto, UpdatePasswordDto } from './users.dto';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ErrorModel } from '../model/error.model';
-
-const usersDb = UsersDb.getInstance();
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
+  constructor(private prisma: PrismaService) {}
+
   async getAllUsers(): Promise<UserModelWithoutPassword[] | null> {
     try {
-      const users = await usersDb.getUsers();
+      const users = await this.prisma.user.findMany();
       return users?.length
         ? (deletePasswordInfo(users) as UserModelWithoutPassword[])
         : [];
@@ -23,7 +22,9 @@ export class UsersService {
 
   async getUserById(id: string): Promise<UserModelWithoutPassword | null> {
     try {
-      const res = usersDb.getUserById(id);
+      const res = await this.prisma.user.findUnique({
+        where: { id },
+      });
       return res ? (deletePasswordInfo(res) as UserModelWithoutPassword) : null;
     } catch (error) {
       console.error('getUserById', error);
@@ -34,13 +35,14 @@ export class UsersService {
     login,
     password,
   }: CreateUserDto): Promise<UserModelWithoutPassword | string> {
-    const isUserExist = await usersDb.checkIfUserWithSuchLoginExist(login);
+    const isUserExist = await this.prisma.user.findUnique({
+      where: { login },
+    });
     if (isUserExist) {
       return 'Login is already in use';
     }
 
     const newUser = new UserModel({
-      id: uuidv4(),
       login,
       password,
       createdAt: Date.now(),
@@ -49,7 +51,9 @@ export class UsersService {
     });
 
     try {
-      await usersDb.createUser(newUser);
+      await this.prisma.user.create({
+        data: newUser,
+      });
       return deletePasswordInfo(newUser) as UserModelWithoutPassword;
     } catch (error) {
       console.error('createUser', error);
@@ -63,7 +67,9 @@ export class UsersService {
   }: UpdatePasswordDto & { id: string }): Promise<
     UserModelWithoutPassword | ErrorModel
   > {
-    const userToUpdatePassword = usersDb.checkIfUserExist(id);
+    const userToUpdatePassword = await this.prisma.user.findUnique({
+      where: { id },
+    });
 
     if (!userToUpdatePassword) {
       return new ErrorModel({
@@ -80,7 +86,14 @@ export class UsersService {
     }
 
     try {
-      const res = await usersDb.updateUserPassword(id, newPassword);
+      const res = await this.prisma.user.update({
+        where: { id },
+        data: {
+          password: newPassword,
+          updatedAt: Date.now(),
+          version: userToUpdatePassword.version + 1,
+        },
+      });
       return deletePasswordInfo(res) as UserModelWithoutPassword;
     } catch (e) {
       console.error('updatePassword', e);
@@ -89,7 +102,9 @@ export class UsersService {
 
   async deleteUser(id: string): Promise<boolean | ErrorModel> {
     try {
-      const isUserExist = usersDb.checkIfUserExist(id);
+      const isUserExist = await this.prisma.user.findUnique({
+        where: { id },
+      });
 
       if (!isUserExist) {
         return new ErrorModel({
@@ -98,7 +113,9 @@ export class UsersService {
         });
       }
 
-      return await usersDb.deleteUser(id);
+      await this.prisma.user.delete({
+        where: { id },
+      });
     } catch (e) {
       console.error('deleteUser', e);
     }

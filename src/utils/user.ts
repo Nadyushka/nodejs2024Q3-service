@@ -1,7 +1,7 @@
-import { UserModel, UserModelWithoutPassword } from '../model/user.model';
+import {  UserModelWithoutPassword } from '../model/user.model';
 
 export const deletePasswordInfo = (
-  usersData: UserModel[] | UserModel | null,
+  usersData: unknown
 ): null | UserModelWithoutPassword | UserModelWithoutPassword[] => {
   if (!usersData) return null;
 
@@ -13,6 +13,7 @@ export const deletePasswordInfo = (
     }) as UserModelWithoutPassword[];
   }
 
+  // @ts-ignore
   const userCopy = { ...usersData };
 
   if (userCopy.password) {
