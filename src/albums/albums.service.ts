@@ -98,7 +98,7 @@ export class AlbumsService {
         data: { albumId: null },
       });
 
-      await this.prisma.favAlbum.deleteMany({
+      await this.prisma.favouriteAlbum.deleteMany({
         where: { albumId: id },
       });
 

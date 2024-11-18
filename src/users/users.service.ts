@@ -9,12 +9,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllUsers(): Promise<UserModelWithoutPassword[] | null> {
+  async getAllUsers(): Promise<any[] | null> {
     try {
-      const users = await this.prisma.user.findMany();
-      return users?.length
-        ? (deletePasswordInfo(users) as UserModelWithoutPassword[])
-        : [];
+      return this.prisma.user.findMany();
     } catch (error) {
       console.error('getAllUsers', error);
     }

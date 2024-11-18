@@ -14,13 +14,13 @@ export class FavsService {
     tracks: TrackModel[];
   }> {
     try {
-      const artists = await this.prisma.favArtist.findMany({
+      const artists = await this.prisma.favouriteArtist.findMany({
         include: { artist: true },
       });
-      const albums = await this.prisma.favAlbum.findMany({
+      const albums = await this.prisma.favouriteAlbum.findMany({
         include: { album: true },
       });
-      const tracks = await this.prisma.favTrack.findMany({
+      const tracks = await this.prisma.favouriteTrack.findMany({
         include: { track: true },
       });
 
@@ -35,7 +35,7 @@ export class FavsService {
   }
 
   async addTrack(id: string): Promise<string | ErrorModel> {
-    const track = await this.prisma.album.findUnique({ where: { id } });
+    const track = await this.prisma.track.findUnique({ where: { id } });
     if (!track) {
       return new ErrorModel({
         errorText: 'There is no track with such id',
@@ -43,21 +43,21 @@ export class FavsService {
       });
     }
 
-    const isTackAdded = await this.prisma.favTrack.findUnique({
+    const isTackAdded = await this.prisma.favouriteTrack.findUnique({
       where: { trackId: id },
     });
     if (isTackAdded) {
       return 'Track is already added to favorites';
     } else {
-      await this.prisma.favAlbum.create({
-        data: { albumId: id },
+      await this.prisma.favouriteTrack.create({
+        data: { trackId: id },
       });
       return 'Track was added to favorites';
     }
   }
 
   async deleteTrack(id: string): Promise<string | ErrorModel> {
-    const track = await this.prisma.favTrack.findUnique({
+    const track = await this.prisma.favouriteTrack.findUnique({
       where: { trackId: id },
     });
     if (!track) {
@@ -67,8 +67,8 @@ export class FavsService {
       });
     }
 
-    await this.prisma.favAlbum.delete({
-      where: { albumId: id },
+    await this.prisma.favouriteTrack.delete({
+      where: { trackId: id },
     });
     return 'Track was deleted from favorites';
   }
@@ -82,13 +82,13 @@ export class FavsService {
       });
     }
 
-    const isAlbumAdded = await this.prisma.favAlbum.findUnique({
+    const isAlbumAdded = await this.prisma.favouriteAlbum.findUnique({
       where: { albumId: id },
     });
     if (isAlbumAdded) {
       return 'Album is already added to favorites';
     } else {
-      await this.prisma.favAlbum.create({
+      await this.prisma.favouriteAlbum.create({
         data: { albumId: id },
       });
       return 'Album was added to favorites';
@@ -96,7 +96,7 @@ export class FavsService {
   }
 
   async deleteAlbum(id: string): Promise<string | ErrorModel> {
-    const album = await this.prisma.favAlbum.findUnique({
+    const album = await this.prisma.favouriteAlbum.findUnique({
       where: { albumId: id },
     });
     if (!album) {
@@ -106,7 +106,7 @@ export class FavsService {
       });
     }
     try {
-      await this.prisma.favAlbum.delete({
+      await this.prisma.favouriteAlbum.delete({
         where: { albumId: id },
       });
       return 'Album was deleted from favorites';
@@ -124,13 +124,13 @@ export class FavsService {
       });
     }
 
-    const isArtistAdded = await this.prisma.favArtist.findUnique({
+    const isArtistAdded = await this.prisma.favouriteArtist.findUnique({
       where: { artistId: id },
     });
     if (isArtistAdded) {
       return 'Artist is already added to favorites';
     } else {
-      await this.prisma.favArtist.create({
+      await this.prisma.favouriteArtist.create({
         data: { artistId: id },
       });
       return 'Artist was added to favorites';
@@ -138,7 +138,7 @@ export class FavsService {
   }
 
   async deleteArtist(id: string): Promise<string | ErrorModel> {
-    const artist = await this.prisma.favArtist.findUnique({
+    const artist = await this.prisma.favouriteArtist.findUnique({
       where: { artistId: id },
     });
     if (!artist) {
@@ -148,7 +148,7 @@ export class FavsService {
       });
     }
 
-    await this.prisma.favArtist.delete({
+    await this.prisma.favouriteArtist.delete({
       where: { artistId: id },
     });
     return 'Artist was deleted from favorites';

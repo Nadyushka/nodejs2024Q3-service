@@ -81,7 +81,7 @@ export class TracksService {
     }
   }
 
-  async deleteTrack(id: string): Promise<boolean | ErrorModel> {
+  async deleteTrack(id: string): Promise<any | ErrorModel> {
     try {
       const trackToDelete = await this.prisma.track.findUnique({
         where: { id },
@@ -94,13 +94,15 @@ export class TracksService {
         });
       }
 
-      await this.prisma.favTrack.deleteMany({
-        where: { trackId: id },
-      });
-
       await this.prisma.track.delete({
         where: { id },
       });
+
+      await this.prisma.favouriteTrack.deleteMany({
+        where: { trackId: id },
+      });
+
+      return this.prisma.track
     } catch (e) {
       console.error('deleteTrack', e);
     }

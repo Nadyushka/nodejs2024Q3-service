@@ -102,9 +102,10 @@ export class ArtistsService {
         data: { artistId: null },
       });
 
-      await this.prisma.favArtist.deleteMany({
+      await this.prisma.favouriteArtist.deleteMany({
         where: { artistId: id },
       });
+
       return;
     } catch (e) {
       console.error('deleteArtist', e);

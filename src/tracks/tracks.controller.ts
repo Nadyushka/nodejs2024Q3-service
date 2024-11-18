@@ -137,6 +137,7 @@ export class TracksController {
   @HttpCode(204)
   async deleteTrack(@Param('id') id: string) {
     try {
+
       const res = await this.tracksService.deleteTrack(id);
 
       if (res instanceof ErrorModel) {
