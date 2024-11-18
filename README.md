@@ -8,7 +8,9 @@
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/Nadyushka/nodejs2024Q3-service.git
+
+git checkout dev-2
 ```
 
 ## Installing NPM modules
@@ -17,15 +19,17 @@ git clone {repository URL}
 npm install
 ```
 
-## Running application
+## Running application using Docker
 
 ```
-npm start
+docker compose up --build -d
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+## Add prisma migration after finish - docker compose up -
+
+```
+docker exec node npx prisma migrate dev
+```
 
 ## Testing
 
