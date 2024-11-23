@@ -7,6 +7,9 @@ import { ArtistsModule } from './artists/artists.module';
 import { AlbumsModule } from './albums/albums.module';
 import { FavsModule } from './favs/favs.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { LoggingService } from './logging/logging.service';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from './logging/exeptions.filter';
 
 @Module({
   imports: [
@@ -18,6 +21,14 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    LoggingService,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
+  exports: [LoggingService],
 })
 export class AppModule {}
