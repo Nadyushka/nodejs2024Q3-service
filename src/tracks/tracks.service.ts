@@ -102,7 +102,7 @@ export class TracksService {
         where: { trackId: id },
       });
 
-      return this.prisma.track
+      return this.prisma.track;
     } catch (e) {
       console.error('deleteTrack', e);
     }
