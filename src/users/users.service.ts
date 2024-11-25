@@ -28,10 +28,23 @@ export class UsersService {
     }
   }
 
+  async getUserByLogin(login: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { login },
+      });
+      if (user) {
+        return user;
+      }
+    } catch (error) {
+      console.error('getUserByLogin', error);
+    }
+  }
+
   async createUser({
     login,
     password,
-  }: CreateUserDto): Promise<UserModelWithoutPassword | string> {
+  }: CreateUserDto) {
     const isUserExist = await this.prisma.user.findUnique({
       where: { login },
     });
