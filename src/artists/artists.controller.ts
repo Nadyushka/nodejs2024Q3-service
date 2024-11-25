@@ -11,10 +11,8 @@ import {
   HttpCode,
 } from '@nestjs/common';
 
-import { ResponseModel } from '../model/response.model';
 import { errorHandler } from '../utils/errorHandler';
 import { ArtistsService } from './artists.service';
-import { ArtistModel } from '../model/artist.model';
 import { CreateArtisDto, UpdateArtistDto } from './artists.dto';
 import { ErrorModel } from '../model/error.model';
 

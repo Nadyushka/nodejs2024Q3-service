@@ -11,10 +11,8 @@ import {
   HttpCode,
 } from '@nestjs/common';
 
-import { ResponseModel } from '../model/response.model';
 import { errorHandler } from '../utils/errorHandler';
 import { TracksService } from './tracks.service';
-import { TrackModel } from '../model/track.model';
 import { CreateTrackDto, UpdateTrackDto } from './tracks.dto';
 import { isUUID } from 'class-validator';
 import { ErrorModel } from '../model/error.model';
@@ -49,7 +47,7 @@ export class TracksController {
         );
       }
 
-      return res
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -88,7 +86,7 @@ export class TracksController {
         throw new HttpException(res, HttpStatus.BAD_REQUEST);
       }
 
-      return res
+      return res;
     } catch (e) {
       errorHandler(e);
     }
@@ -129,7 +127,7 @@ export class TracksController {
         throw new HttpException(res.errorText, res.status);
       }
 
-      return res
+      return res;
     } catch (e) {
       errorHandler(e);
     }

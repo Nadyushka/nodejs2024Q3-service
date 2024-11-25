@@ -1,0 +1,44 @@
+services:
+  node:
+    working_dir: /app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env
+    volumes:
+      - type: bind
+        source: ./static
+        target: /opt/app/static
+    restart: unless-stopped
+    networks:
+      - node-network
+    command: sh -c "npx prisma migrate deploy && npm run start:prod"
+    depends_on:
+      - postgres
+
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+    container_name: postgres
+    env_file:
+      - .env
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - node-network
+    restart: unless-stopped
+
+
+volumes:
+  pg-data:
+
+networks:
+  node-network:
+    driver: bridge

@@ -1,21 +1,16 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { ArtistsDb } from '../db/artists.db';
 import { ArtistModel } from '../model/artist.model';
 import { CreateArtisDto, UpdateArtistDto } from './artists.dto';
 import { ErrorModel } from '../model/error.model';
-import { TracksDb } from '../db/tracks.db';
-import { AlbumsDb } from '../db/albums.db';
-
-const artistDb = ArtistsDb.getInstance();
-const tracksDb = TracksDb.getInstance();
-const albumsDb = AlbumsDb.getInstance();
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ArtistsService {
+  constructor(private prisma: PrismaService) {}
+
   async getAllArtists(): Promise<ArtistModel[] | null> {
     try {
-      return await artistDb.getArtists();
+      return this.prisma.artist.findMany();
     } catch (error) {
       console.error('getAllArtists', error);
     }
@@ -23,8 +18,10 @@ export class ArtistsService {
 
   async getArtistById(id: string): Promise<ArtistModel | null> {
     try {
-      const res = await artistDb.getArtistById(id);
-      return res ?? null;
+      const artist = await this.prisma.artist.findUnique({
+        where: { id },
+      });
+      return artist ?? null;
     } catch (error) {
       console.error('getArtistById', error);
     }
@@ -35,13 +32,15 @@ export class ArtistsService {
     grammy,
   }: CreateArtisDto): Promise<ArtistModel | string> {
     const newArtist = new ArtistModel({
-      id: uuidv4(),
       name,
       grammy,
     });
 
     try {
-      return await artistDb.createArtist(newArtist);
+      const createdArtist = await this.prisma.artist.create({
+        data: newArtist,
+      });
+      return createdArtist ?? newArtist;
     } catch (error) {
       console.error('createArtist', error);
     }
@@ -52,7 +51,9 @@ export class ArtistsService {
     grammy,
     id,
   }: UpdateArtistDto & { id: string }): Promise<ArtistModel | ErrorModel> {
-    const artistToUpdate = artistDb.checkIfArtistExist(id);
+    const artistToUpdate = await this.prisma.artist.findUnique({
+      where: { id },
+    });
 
     if (!artistToUpdate) {
       return new ErrorModel({
@@ -62,7 +63,13 @@ export class ArtistsService {
     }
 
     try {
-      return await artistDb.updateArtistInfo(id, { name, grammy });
+      return await this.prisma.artist.update({
+        where: { id },
+        data: {
+          name,
+          grammy,
+        },
+      });
     } catch (e) {
       console.error('updateArtist', e);
     }
@@ -70,7 +77,9 @@ export class ArtistsService {
 
   async deleteArtist(id: string): Promise<boolean | ErrorModel> {
     try {
-      const artistToDelete = artistDb.checkIfArtistExist(id);
+      const artistToDelete = await this.prisma.artist.findUnique({
+        where: { id },
+      });
 
       if (!artistToDelete) {
         return new ErrorModel({
@@ -79,9 +88,24 @@ export class ArtistsService {
         });
       }
 
-      await artistDb.deleteArtist(id);
-      await tracksDb.deleteArtistFromTracks(id);
-      await albumsDb.deleteArtistFromAlbums(id);
+      await this.prisma.artist.delete({
+        where: { id },
+      });
+
+      await this.prisma.track.updateMany({
+        where: { artistId: id },
+        data: { artistId: null },
+      });
+
+      await this.prisma.album.updateMany({
+        where: { artistId: id },
+        data: { artistId: null },
+      });
+
+      await this.prisma.favouriteArtist.deleteMany({
+        where: { artistId: id },
+      });
+
       return;
     } catch (e) {
       console.error('deleteArtist', e);

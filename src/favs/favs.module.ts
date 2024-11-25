@@ -5,8 +5,8 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { UuidMiddleware } from '../middleware/uuid.middleware';
-import { FavsController } from "./favs.controller";
-import { FavsService } from "./favs.service";
+import { FavsController } from './favs.controller';
+import { FavsService } from './favs.service';
 
 @Module({
   controllers: [FavsController],

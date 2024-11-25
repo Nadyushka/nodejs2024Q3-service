@@ -1,17 +1,16 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { TracksDb } from '../db/tracks.db';
 import { TrackModel } from '../model/track.model';
 import { CreateTrackDto, UpdateTrackDto } from './tracks.dto';
 import { ErrorModel } from '../model/error.model';
-
-const tracksDb = TracksDb.getInstance();
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TracksService {
+  constructor(private prisma: PrismaService) {}
+
   async getAllTracks(): Promise<TrackModel[] | null> {
     try {
-      return await tracksDb.getTracks();
+      return await this.prisma.track.findMany();
     } catch (error) {
       console.error('getAllTracks', error);
     }
@@ -19,7 +18,9 @@ export class TracksService {
 
   async getTrackById(id: string): Promise<TrackModel | null> {
     try {
-      const track = await tracksDb.getTrackById(id);
+      const track = await this.prisma.track.findUnique({
+        where: { id },
+      });
       return track ?? null;
     } catch (error) {
       console.error('getTrackById', error);
@@ -33,7 +34,6 @@ export class TracksService {
     artistId,
   }: CreateTrackDto): Promise<TrackModel | string> {
     const newTrack = new TrackModel({
-      id: uuidv4(),
       name,
       duration,
       albumId: albumId ?? null,
@@ -41,7 +41,8 @@ export class TracksService {
     });
 
     try {
-      return await tracksDb.createTrack(newTrack);
+      const createdTrack = await this.prisma.track.create({ data: newTrack });
+      return createdTrack ?? newTrack;
     } catch (error) {
       console.error('createTrack', error);
     }
@@ -54,7 +55,9 @@ export class TracksService {
     artistId,
     id,
   }: UpdateTrackDto & { id: string }): Promise<TrackModel | ErrorModel> {
-    const trackToUpdate = tracksDb.checkIfTrackExist(id);
+    const trackToUpdate = await this.prisma.track.findUnique({
+      where: { id },
+    });
 
     if (!trackToUpdate) {
       return new ErrorModel({
@@ -64,20 +67,25 @@ export class TracksService {
     }
 
     try {
-      return await tracksDb.updateTrackInfo(id, {
-        name,
-        duration,
-        albumId,
-        artistId,
+      return await this.prisma.track.update({
+        where: { id },
+        data: {
+          name,
+          duration,
+          albumId,
+          artistId,
+        },
       });
     } catch (e) {
       console.error('updateTrack', e);
     }
   }
 
-  async deleteTrack(id: string): Promise<boolean | ErrorModel> {
+  async deleteTrack(id: string): Promise<any | ErrorModel> {
     try {
-      const trackToDelete = tracksDb.checkIfTrackExist(id);
+      const trackToDelete = await this.prisma.track.findUnique({
+        where: { id },
+      });
 
       if (!trackToDelete) {
         return new ErrorModel({
@@ -86,7 +94,15 @@ export class TracksService {
         });
       }
 
-      return await tracksDb.deleteTrack(id);
+      await this.prisma.track.delete({
+        where: { id },
+      });
+
+      await this.prisma.favouriteTrack.deleteMany({
+        where: { trackId: id },
+      });
+
+      return this.prisma.track;
     } catch (e) {
       console.error('deleteTrack', e);
     }
